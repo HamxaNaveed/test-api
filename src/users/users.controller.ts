@@ -4,12 +4,14 @@ import { SaveUserDto } from '../dto/save-user.dto';
 import { Request } from 'express';
 import { SendEventDto } from 'src/dto/send-event.dto';
 import { HttpService } from '@nestjs/axios';
+import { ConfigService } from '@nestjs/config';
 
 @Controller('api')
 export class UsersController {
     constructor(
       private readonly usersService: UsersService,
-      private readonly httpService: HttpService
+      private readonly httpService: HttpService,
+      private readonly configService: ConfigService
     ) {}
 
   @Post('save_user')
@@ -33,7 +35,7 @@ export class UsersController {
       return { message: 'User not found.' };
     }
     const payload = { ...userData, event_name: sendEventDto.event_name };
-    const thirdPartyUrl = 'https://third-party-url.com/endpoint';
+    const thirdPartyUrl = this.configService.get<string>('THIRD_PARTY_URL', 'https://default-url.com');
 
     try {
       const response = await this.httpService.post(thirdPartyUrl, payload).toPromise();
